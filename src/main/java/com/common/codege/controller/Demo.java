@@ -1,7 +1,9 @@
 package com.common.codege.controller;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.common.codege.service.impl.GeneratorServiceImpl;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author wangchao
@@ -9,14 +11,28 @@ import java.util.regex.Pattern;
  * @date 2020/11/1918:34
  */
 public class Demo {
-    public static void main(String[] args) {
-        String tableName = "user_name";
-        StringBuffer stringbf = new StringBuffer();
-        Matcher m = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE).matcher(tableName);
-        while (m.find()) {
-            System.out.println(m.toString());
-            m.appendReplacement(stringbf, m.group(1).toUpperCase() + m.group(2).toLowerCase());
-        }
-        System.out.println(m.appendTail(stringbf).toString());
+    private static String path = GeneratorServiceImpl.class.getClass().getResource("/flt").getPath();
+
+    public static void main(String[] args) throws IOException {
+        String s="Mapper.java.ftl";
+        String[] split = s.split("\\.");
+        File file = new File(path);
+        fun(file);
     }
+
+    private static void fun(File file) throws IOException {
+/*        System.out.println("1------------------------"+file.getAbsolutePath());
+        System.out.println("3------------------------"+file.getPath());*/
+        //遍历path目录下所有文件
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                fun(files[i]);
+            }
+        } else {
+            System.out.println(file.getName());
+        }
+    }
+
+
 }

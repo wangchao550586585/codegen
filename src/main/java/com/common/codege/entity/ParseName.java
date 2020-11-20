@@ -11,12 +11,15 @@ import java.util.List;
  */
 @Data
 public class ParseName {
-    String tableComment;
-    String author;
-    String tableName;
-    String className;
-    String classVarName;
-    List<Cols> cols;
+    private String tableComment;
+    private String author;
+    private String packageName;
+    private String tableName;
+    private String className;
+    private String classVarName;
+    private List<Cols> cols;
+    private String datetime;
+    private String url;
 
 }
 

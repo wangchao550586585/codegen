@@ -1,6 +1,4 @@
-
-
-package flt;
+package ${packageName}.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -12,11 +10,16 @@ import lombok.EqualsAndHashCode;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 
+
+import java.math.BigDecimal;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * ${tableComment}
  *
  * @author ${author}
- * @date 2020-11-19 11:17:34
+ * @date ${datetime}
  */
 @Data
 @TableName("${tableName}")
@@ -34,7 +37,7 @@ private static final long serialVersionUID = 1L;
     @TableId <#if col.keyType == "auto_increment" >(type = IdType.AUTO) </#if>
     </#if>
     @ApiModelProperty(value="${col.colComment}")
-    private String ${col.colName};
+    private ${col.dataType} ${col.colName};
   </#list>
 
 

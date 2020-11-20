@@ -16,5 +16,9 @@ public class GeneratorConf {
      *    生成信息
      */
     private String author;
+    /**
+     * 包名
+     */
+    private String packageName;
 
 }

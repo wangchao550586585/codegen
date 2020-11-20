@@ -42,14 +42,21 @@ public class GeneratorController {
     @PostMapping("/code")
     public void code(@RequestBody GeneratorConf generatorConf, HttpServletResponse response) throws IOException {
 
-        byte[] data = generatorService.code(generatorConf);
-        response.reset();
+/*
         response.setHeader("Content-Encoding", "gzip");
-        response.addHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(data.length));
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
                 String.format("attachment; filename=%s.zip", generatorConf.getTableName()));
+
+        */
+        byte[] data =  generatorService.code(generatorConf);
+        response.reset();
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                String.format("attachment; filename=%s.zip", generatorConf.getTableName()));
+        response.addHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(data.length));
         response.setContentType("application/octet-stream; charset=UTF-8");
+
         IoUtil.write(response.getOutputStream(), Boolean.TRUE, data);
+
     }
 
 
