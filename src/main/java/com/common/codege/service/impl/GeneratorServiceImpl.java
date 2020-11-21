@@ -4,6 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IoUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.common.codege.datasource.DataSourceBean;
+import com.common.codege.datasource.DynamicDataSource;
 import com.common.codege.entity.Cols;
 import com.common.codege.entity.GenDatasourceConf;
 import com.common.codege.entity.GeneratorConf;
@@ -17,6 +19,7 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -34,6 +37,7 @@ import java.util.zip.ZipOutputStream;
  */
 @Service
 @AllArgsConstructor
+@Slf4j
 public class GeneratorServiceImpl implements GeneratorService {
     private final GeneratorMapper generatorMapper;
     private final GenDatasourceConfService genDatasourceConfService;
@@ -42,15 +46,20 @@ public class GeneratorServiceImpl implements GeneratorService {
     @Override
     public IPage<List<Map<String, Object>>> page(Page page, String tableName, String dsName) {
         GenDatasourceConf genDatasourceConf = genDatasourceConfService.lambdaQuery().in(GenDatasourceConf::getName, dsName).one();
-        String datasourceUrl = genDatasourceConf.getUrl();
-        //todo 切换数据源
 
-        return generatorMapper.list(page, tableName);
+        DataSourceBean dataSourceBean = new DataSourceBean(genDatasourceConf.getName(), genDatasourceConf.getUrl(), genDatasourceConf.getUsername(), genDatasourceConf.getPassword());
+       DynamicDataSource.DataSourceContext.setDataSource(dataSourceBean);
+
+        IPage<List<Map<String, Object>>> list = generatorMapper.list(page, tableName);
+
+       DynamicDataSource.DataSourceContext.toDefault();
+        return list;
     }
 
     @SneakyThrows
     @Override
     public byte[] code(GeneratorConf generatorConf) {
+        log.info("-----------------------------------------");
         //解析生成root
         ParseName root = getRoot(generatorConf);
 
@@ -116,11 +125,11 @@ public class GeneratorServiceImpl implements GeneratorService {
         root.setPackageName(Objects.isNull(generatorConf.getPackageName()) ? properties.getProperty("packageName") : generatorConf.getPackageName());
         root.setDatetime(DateUtil.now());
 
-        //todo 切换数据源
+        //切换数据源
         String dsName = generatorConf.getDsName();
         GenDatasourceConf genDatasourceConf = genDatasourceConfService.lambdaQuery().in(GenDatasourceConf::getName, dsName).one();
-        String datasourceUrl = genDatasourceConf.getUrl();
-
+        DataSourceBean dataSourceBean = new DataSourceBean(genDatasourceConf.getName(), genDatasourceConf.getUrl(), genDatasourceConf.getUsername(), genDatasourceConf.getPassword());
+        DynamicDataSource.DataSourceContext.setDataSource(dataSourceBean);
 
 
         //解析表
@@ -128,6 +137,9 @@ public class GeneratorServiceImpl implements GeneratorService {
 
         //解析列
         List<Map<String, Object>> columns = generatorMapper.getColumnByTableName(generatorConf.getTableName());
+
+        //恢复默认数据源
+        DynamicDataSource.DataSourceContext.toDefault();
 
         root.setTableName(String.valueOf(tables.get(0).get("tableName")));
         root.setTableComment(String.valueOf(tables.get(0).get("tableComment")));
