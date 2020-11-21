@@ -30,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author wangchao
  * @description: TODO
- * @date 2020/11/1911:56
+ * @date 2020/11/19 11:56
  */
 @Service
 @AllArgsConstructor
@@ -48,32 +48,24 @@ public class GeneratorServiceImpl implements GeneratorService {
         return generatorMapper.list(page, tableName);
     }
 
+    @SneakyThrows
     @Override
     public byte[] code(GeneratorConf generatorConf) {
         //解析生成root
         ParseName root = getRoot(generatorConf);
 
         //获取Configuration
-        Configuration cfg = null;
-        try {
-            cfg = getConfiguration();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Configuration cfg = getConfiguration();
+
 
         //生成文件
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ZipOutputStream zip = new ZipOutputStream(outputStream);
-        try {
-            genFile(new File(path), root, cfg, zip);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TemplateException e) {
-            e.printStackTrace();
-        }
-
+        genFile(new File(path), root, cfg, zip);
+        byte[] bytes = outputStream.toByteArray();
         IoUtil.close(zip);
-        return outputStream.toByteArray();
+        IoUtil.close(outputStream);
+        return bytes;
     }
 
     private void genFile(File file, ParseName root, Configuration cfg, ZipOutputStream zip) throws IOException, TemplateException {
@@ -89,14 +81,14 @@ public class GeneratorServiceImpl implements GeneratorService {
 
             String path = root.getPackageName().concat("." + s.toLowerCase());
             path = path.replace(".", File.separator).concat(File.separator + root.getClassName() + genFileName);
-            path = path.replace("serviceimpl", "service.impl");
+            path = path.replace("serviceimpl", "service" + File.separator + "impl");
             //获取模板
             Template temp = cfg.getTemplate(fileName);
             //生成文件
             StringWriter sw = new StringWriter();
             temp.process(root, sw);
 
-            zip.putNextEntry(new ZipEntry(Objects.requireNonNull(path)));
+            zip.putNextEntry(new ZipEntry(path));
             IoUtil.write(zip, StandardCharsets.UTF_8, false, sw.toString());
             IoUtil.close(sw);
             zip.closeEntry();
@@ -123,6 +115,13 @@ public class GeneratorServiceImpl implements GeneratorService {
         root.setAuthor(Objects.isNull(generatorConf.getAuthor()) ? properties.getProperty("author") : generatorConf.getAuthor());
         root.setPackageName(Objects.isNull(generatorConf.getPackageName()) ? properties.getProperty("packageName") : generatorConf.getPackageName());
         root.setDatetime(DateUtil.now());
+
+        //todo 切换数据源
+        String dsName = generatorConf.getDsName();
+        GenDatasourceConf genDatasourceConf = genDatasourceConfService.lambdaQuery().in(GenDatasourceConf::getName, dsName).one();
+        String datasourceUrl = genDatasourceConf.getUrl();
+
+
 
         //解析表
         List<Map<String, Object>> tables = generatorMapper.getTableByTableName(generatorConf.getTableName());

@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.common</groupId>
-  <artifactId>common-sequence</artifactId>
+  <artifactId>common-codegen</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>common-sequence</name>
+  <name>common-codegen</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
