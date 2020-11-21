@@ -37,7 +37,7 @@ private static final long serialVersionUID = 1L;
     @TableId <#if col.keyType == "auto_increment" >(type = IdType.AUTO) </#if>
     </#if>
     @ApiModelProperty(value="${col.colComment}")
-    private ${col.dataType} ${col.colName};
+    private ${col.dataType} ${col.fieldName};
   </#list>
 
 

@@ -8,8 +8,9 @@ import lombok.Data;
  * @date 2020/11/1916:23
  */
 @Data
-public class Cols {
+public class ColumnEntity {
     String colComment;
+    String fieldName;
     String colName;
     String dataType;
     String keyStatus;

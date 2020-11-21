@@ -6,10 +6,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.common.codege.datasource.DataSourceBean;
 import com.common.codege.datasource.DynamicDataSource;
-import com.common.codege.entity.Cols;
+import com.common.codege.entity.ColumnEntity;
 import com.common.codege.entity.GenDatasourceConf;
 import com.common.codege.entity.GeneratorConf;
-import com.common.codege.entity.ParseName;
+import com.common.codege.entity.TableEntity;
 import com.common.codege.mapper.GeneratorMapper;
 import com.common.codege.service.GenDatasourceConfService;
 import com.common.codege.service.GeneratorService;
@@ -41,43 +41,42 @@ import java.util.zip.ZipOutputStream;
 public class GeneratorServiceImpl implements GeneratorService {
     private final GeneratorMapper generatorMapper;
     private final GenDatasourceConfService genDatasourceConfService;
-    private static String path = GeneratorServiceImpl.class.getClass().getResource("/flt").getPath();
-
+    private static String path = GeneratorServiceImpl.class.getClass().getResource("/ftl").getPath();
+    private static final Pattern pattern = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE);
     @Override
     public IPage<List<Map<String, Object>>> page(Page page, String tableName, String dsName) {
         GenDatasourceConf genDatasourceConf = genDatasourceConfService.lambdaQuery().in(GenDatasourceConf::getName, dsName).one();
 
         DataSourceBean dataSourceBean = new DataSourceBean(genDatasourceConf.getName(), genDatasourceConf.getUrl(), genDatasourceConf.getUsername(), genDatasourceConf.getPassword());
-       DynamicDataSource.DataSourceContext.setDataSource(dataSourceBean);
+        DynamicDataSource.DataSourceContext.setDataSource(dataSourceBean);
 
         IPage<List<Map<String, Object>>> list = generatorMapper.list(page, tableName);
 
-       DynamicDataSource.DataSourceContext.toDefault();
+        DynamicDataSource.DataSourceContext.toDefault();
         return list;
     }
 
     @SneakyThrows
     @Override
     public byte[] code(GeneratorConf generatorConf) {
-        log.info("-----------------------------------------");
         //解析生成root
-        ParseName root = getRoot(generatorConf);
+        TableEntity root = getRoot(generatorConf);
 
         //获取Configuration
         Configuration cfg = getConfiguration();
-
 
         //生成文件
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ZipOutputStream zip = new ZipOutputStream(outputStream);
         genFile(new File(path), root, cfg, zip);
-        byte[] bytes = outputStream.toByteArray();
+//        byte[] bytes = outputStream.toByteArray();
+//        IoUtil.close(outputStream);
+
         IoUtil.close(zip);
-        IoUtil.close(outputStream);
-        return bytes;
+        return outputStream.toByteArray();
     }
 
-    private void genFile(File file, ParseName root, Configuration cfg, ZipOutputStream zip) throws IOException, TemplateException {
+    private void genFile(File file, TableEntity root, Configuration cfg, ZipOutputStream zip) throws IOException, TemplateException {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             for (int i = 0; i < files.length; i++) {
@@ -97,13 +96,14 @@ public class GeneratorServiceImpl implements GeneratorService {
             StringWriter sw = new StringWriter();
             temp.process(root, sw);
 
-            zip.putNextEntry(new ZipEntry(path));
+            temp.process(root, new FileWriter(new File("D:/mywork/新建文件夹/roseWood/yokea-provider/yokea-pro/yokea-pro-crm/src/main/java/com/yokea/pro/crm/feign/" + genFileName).getCanonicalFile()));
+
+            zip.putNextEntry(new ZipEntry(Objects.requireNonNull(path)));
             IoUtil.write(zip, StandardCharsets.UTF_8, false, sw.toString());
             IoUtil.close(sw);
             zip.closeEntry();
+
         }
-
-
     }
 
     private Configuration getConfiguration() throws IOException {
@@ -115,12 +115,12 @@ public class GeneratorServiceImpl implements GeneratorService {
     }
 
     @SneakyThrows
-    private ParseName getRoot(GeneratorConf generatorConf) {
+    private TableEntity getRoot(GeneratorConf generatorConf) {
         Properties properties = new Properties();
         InputStream in = GeneratorServiceImpl.class.getClassLoader().getResourceAsStream("generator.properties");
         properties.load(in);
 
-        ParseName root = new ParseName();
+        TableEntity root = new TableEntity();
         root.setAuthor(Objects.isNull(generatorConf.getAuthor()) ? properties.getProperty("author") : generatorConf.getAuthor());
         root.setPackageName(Objects.isNull(generatorConf.getPackageName()) ? properties.getProperty("packageName") : generatorConf.getPackageName());
         root.setDatetime(DateUtil.now());
@@ -146,12 +146,13 @@ public class GeneratorServiceImpl implements GeneratorService {
         root.setClassName(toV(String.valueOf(tables.get(0).get("tableName")), false));
         root.setUrl(root.getClassName().toLowerCase());
         root.setClassVarName(toV(String.valueOf(tables.get(0).get("tableName")), true));
-        List<Cols> cols = new ArrayList<>();
+        List<ColumnEntity> cols = new ArrayList<>();
 
         columns.forEach(col -> {
-            Cols cols1 = new Cols();
+            ColumnEntity cols1 = new ColumnEntity();
             //驼峰命名小写
-            cols1.setColName(toV(String.valueOf(col.get("colName")), true));
+            cols1.setFieldName(toV(String.valueOf(col.get("colName")), true));
+            cols1.setColName(String.valueOf(col.get("colName")));
 
             cols1.setDataType(properties.getProperty(String.valueOf(col.get("dataType"))));
 
@@ -166,7 +167,7 @@ public class GeneratorServiceImpl implements GeneratorService {
 
     private static String toV(String tableName, boolean flag) {
         StringBuffer stringbf = new StringBuffer();
-        Matcher m = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE).matcher(tableName);
+        Matcher m = pattern.matcher(tableName);
         while (m.find()) {
             m.appendReplacement(stringbf, m.group(1).toUpperCase() + m.group(2).toLowerCase());
         }
@@ -177,18 +178,4 @@ public class GeneratorServiceImpl implements GeneratorService {
         return s;
     }
 
-
-    /*        Template temp = cfg.getTemplate("Entity.java.ftl");
-        Template temp = cfg.getTemplate("Service.java.ftl");
-        Template temp = cfg.getTemplate("Controller.java.ftl");
-        Template temp = cfg.getTemplate("ServiceImpl.java.ftl");*/
-
-    //合并数据
-/*        String path = this.getClass().getResource("/flt").getPath();///D:/mywork/codegen/target/classes/flt
-        String path2 = this.getClass().getResource("/").getPath();///D:/mywork/codegen/target/classes/
-        String path3 = this.getClass().getResource(".").getPath();///D:/mywork/codegen/target/classes/com/common/codege/service/impl/
-        String path4 = this.getClass().getResource("").getPath();///D:/mywork/codegen/target/classes/com/common/codege/service/impl/
-        String iipath = new File("/entity.java").getCanonicalPath();//D:\entity.java
-        String iipath2 = new File("entity.java").getAbsolutePath();//D:\mywork\codegen\entity.java
-        String iipath3 =new File("./entity.java").getPath();//.\entity.java*/
 }

@@ -36,8 +36,8 @@ public class ${className}Controller {
      */
     @ApiOperation(value = "分页查询", notes = "分页查询")
     @GetMapping("/page" )
-    public BaseResponseWrapper getGenDatasourceConfPage(@RequestHeader(required = true, name = "token") String token,@RequestHeader(required = true,name = "token")String token,Page page, ${className} ${classVarName}) {
-        Long userId = JWTUtil.getUserId(token);
+    public BaseResponseWrapper getGenDatasourceConfPage(@RequestHeader(required = true, name = "token") String token,Page page, ${className} ${classVarName}) {
+       // Long userId = JWTUtil.getUserId(token);
         return BaseResponseWrapMapper.ok(${classVarName}Service.page(page, Wrappers.query(${classVarName})));
     }
 
@@ -61,7 +61,7 @@ public class ${className}Controller {
     @ApiOperation(value = "新增${tableComment}", notes = "新增${tableComment}")
     @PostMapping
     public BaseResponseWrapper save(@RequestBody ${className} ${classVarName}) {
-        ${classVarName}.setCreateTime(LocalDateTime.now());
+      //  ${classVarName}.setCreateTime(LocalDateTime.now());
         return BaseResponseWrapMapper.ok(${classVarName}Service.save(${classVarName}));
     }
 
@@ -73,7 +73,7 @@ public class ${className}Controller {
     @ApiOperation(value = "修改${tableComment}", notes = "修改${tableComment}")
     @PutMapping
     public BaseResponseWrapper updateById(@RequestBody ${className} ${classVarName}) {
-        ${classVarName}.setUpdateTime(LocalDateTime.now());
+    //    ${classVarName}.setUpdateTime(LocalDateTime.now());
         return BaseResponseWrapMapper.ok(${classVarName}Service.updateById(${classVarName}));
     }
 
