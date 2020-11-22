@@ -44,7 +44,8 @@
                 return {
                     current: params.offset / params.limit + params.offset % params.limit + 1,
                     size: params.limit,
-                    name: params.search
+                    tableName: params.search,
+                    dsName: "test"
                 };
             },
             columns: [

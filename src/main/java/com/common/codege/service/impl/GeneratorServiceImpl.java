@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -163,8 +164,8 @@ public class GeneratorServiceImpl implements GeneratorService {
 
     private TableEntity setTable(GeneratorConf generatorConf, List<Map<String, Object>> tables) {
         TableEntity root = new TableEntity();
-        root.setAuthor(Objects.isNull(generatorConf.getAuthor()) ? properties.getProperty("author") : generatorConf.getAuthor());
-        root.setPackageName(Objects.isNull(generatorConf.getPackageName()) ? properties.getProperty("packageName") : generatorConf.getPackageName());
+        root.setAuthor(StringUtils.isEmpty(generatorConf.getAuthor()) ? properties.getProperty("author") : generatorConf.getAuthor());
+        root.setPackageName(StringUtils.isEmpty(generatorConf.getPackageName()) ? properties.getProperty("packageName") : generatorConf.getPackageName());
         root.setDatetime(DateUtil.now());
         root.setTableName(String.valueOf(tables.get(0).get("tableName")));
         root.setTableComment(String.valueOf(tables.get(0).get("tableComment")));
