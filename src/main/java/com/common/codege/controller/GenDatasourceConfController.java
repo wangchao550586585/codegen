@@ -9,9 +9,14 @@ import com.common.codege.service.GenDatasourceConfService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -28,6 +33,13 @@ public class GenDatasourceConfController {
 
     private final  GenDatasourceConfService genDatasourceConfService;
 
+
+    @ApiOperation(value = "分页查询", notes = "分页查询")
+    @GetMapping("/index" )
+    public String index() {
+        return "/gendatasourceconf/index";
+    }
+
     /**
      * 分页查询
      * @param page 分页对象
@@ -36,10 +48,15 @@ public class GenDatasourceConfController {
      */
     @ApiOperation(value = "分页查询", notes = "分页查询")
     @GetMapping("/page" )
-    public String getGenDatasourceConfPage(Model model, Page page, GenDatasourceConf genDatasourceConf) {
-        model.addAttribute("genDatasourceConfList",genDatasourceConfService.page(page, Wrappers.query(genDatasourceConf)));
-        return "/index";
+    @ResponseBody
+    public ResponseEntity getGenDatasourceConfPage(Page page, GenDatasourceConf genDatasourceConf) {
+        Page page1 = genDatasourceConfService.page(page,Wrappers.lambdaQuery(genDatasourceConf).orderByAsc(GenDatasourceConf::getId) );
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("total", page1.getTotal());
+        result.put("rows", page1.getRecords());
+        return  ResponseEntity.ok(result);
     }
+
 
 
     /**
@@ -54,6 +71,12 @@ public class GenDatasourceConfController {
         return R.ok(genDatasourceConfService.getById(id));
     }
 
+
+    @GetMapping("/save")
+    public String save() {
+        return "/gendatasourceconf/gendatasourceconf";
+    }
+
     /**
      * 新增数据源表
      * @param genDatasourceConf 数据源表
@@ -64,6 +87,17 @@ public class GenDatasourceConfController {
     @ResponseBody
     public R save(@RequestBody GenDatasourceConf genDatasourceConf) {
         return R.ok(genDatasourceConfService.save(genDatasourceConf));
+    }
+    /**
+     * 修改设备页面
+     *
+     * @param modelMap
+     * @return
+     */
+    @GetMapping("/update/{id}")
+    public String update(@PathVariable("id") Long id, ModelMap modelMap) {
+        modelMap.put("gendatasourceconf", genDatasourceConfService.getById(id));
+        return "/gendatasourceconf/gendatasourceconf";
     }
 
     /**
@@ -80,14 +114,15 @@ public class GenDatasourceConfController {
 
     /**
      * 通过id删除数据源表
-     * @param id id
+     * @param ids ids
      * @return R
      */
     @ApiOperation(value = "通过id删除数据源表", notes = "通过id删除数据源表")
-    @DeleteMapping("/{id}" )
+    @DeleteMapping("/{ids}" )
     @ResponseBody
-    public R removeById(@PathVariable Integer id) {
-        return R.ok(genDatasourceConfService.removeById(id));
+    public R removeById(@PathVariable String ids) {
+        String[] idList = ids.split("_");
+        return R.ok(genDatasourceConfService.removeByIds(Arrays.asList(idList)));
     }
 
 }

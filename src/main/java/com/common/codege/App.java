@@ -1,5 +1,6 @@
 package com.common.codege;
 
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.common.codege.datasource.DynamicDataSource;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.SpringApplication;
@@ -36,6 +37,10 @@ public class App
         return dynamicDataSource;
     }
 
+    @Bean
+    public PaginationInterceptor paginationInterceptor() {
+        return new PaginationInterceptor();
+    }
 }
 
 
