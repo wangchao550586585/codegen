@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,47 +28,61 @@ import java.util.Map;
  */
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/gendatasourceconf" )
+@RequestMapping("/gendatasourceconf")
 @Api(value = "gendatasourceconf", tags = "数据源表管理")
 public class GenDatasourceConfController {
 
-    private final  GenDatasourceConfService genDatasourceConfService;
+    private final GenDatasourceConfService genDatasourceConfService;
 
 
     @ApiOperation(value = "分页查询", notes = "分页查询")
-    @GetMapping("/index" )
+    @GetMapping("/index")
     public String index() {
         return "/gendatasourceconf/index";
     }
 
     /**
      * 分页查询
-     * @param page 分页对象
+     *
+     * @param page              分页对象
      * @param genDatasourceConf 数据源表
      * @return
      */
     @ApiOperation(value = "分页查询", notes = "分页查询")
-    @GetMapping("/page" )
+    @GetMapping("/page")
     @ResponseBody
     public ResponseEntity getGenDatasourceConfPage(Page page, GenDatasourceConf genDatasourceConf) {
-        Page page1 = genDatasourceConfService.page(page,Wrappers.lambdaQuery(genDatasourceConf).orderByAsc(GenDatasourceConf::getId) );
+        Page page1 = genDatasourceConfService.page(page, Wrappers.lambdaQuery(genDatasourceConf).orderByAsc(GenDatasourceConf::getId));
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("total", page1.getTotal());
         result.put("rows", page1.getRecords());
-        return  ResponseEntity.ok(result);
+        return ResponseEntity.ok(result);
     }
 
+    /**
+     * 查询dsName
+     *
+     * @return
+     */
+    @ApiOperation(value = "分页查询", notes = "分页查询")
+    @GetMapping("/listBYDsName")
+    @ResponseBody
+    public ResponseEntity listBYDsName(@RequestParam(defaultValue = "master") String dsName) {
+        List<GenDatasourceConf> name = genDatasourceConfService.list(Wrappers.<GenDatasourceConf>lambdaQuery().select(GenDatasourceConf::getName));
+        return ResponseEntity.ok(name);
+    }
 
 
     /**
      * 通过id查询数据源表
+     *
      * @param id id
      * @return R
      */
     @ApiOperation(value = "通过id查询", notes = "通过id查询")
-    @GetMapping("/{id}" )
+    @GetMapping("/{id}")
     @ResponseBody
-    public R getById(@PathVariable("id" ) Integer id) {
+    public R getById(@PathVariable("id") Integer id) {
         return R.ok(genDatasourceConfService.getById(id));
     }
 
@@ -79,6 +94,7 @@ public class GenDatasourceConfController {
 
     /**
      * 新增数据源表
+     *
      * @param genDatasourceConf 数据源表
      * @return R
      */
@@ -88,6 +104,7 @@ public class GenDatasourceConfController {
     public R save(@RequestBody GenDatasourceConf genDatasourceConf) {
         return R.ok(genDatasourceConfService.save(genDatasourceConf));
     }
+
     /**
      * 修改设备页面
      *
@@ -102,6 +119,7 @@ public class GenDatasourceConfController {
 
     /**
      * 修改数据源表
+     *
      * @param genDatasourceConf 数据源表
      * @return R
      */
@@ -114,11 +132,12 @@ public class GenDatasourceConfController {
 
     /**
      * 通过id删除数据源表
+     *
      * @param ids ids
      * @return R
      */
     @ApiOperation(value = "通过id删除数据源表", notes = "通过id删除数据源表")
-    @DeleteMapping("/{ids}" )
+    @DeleteMapping("/{ids}")
     @ResponseBody
     public R removeById(@PathVariable String ids) {
         String[] idList = ids.split("_");

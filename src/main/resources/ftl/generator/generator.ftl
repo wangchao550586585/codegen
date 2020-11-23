@@ -29,7 +29,6 @@
         </button>
         <button type="button" class="btn btn-primary"
                 onclick="download()">
-<#--                onclick="getCode('/generator/code')">-->
             提交
         </button>
     </div>
@@ -44,6 +43,8 @@
         xhr.responseType = "blob";
         xhr.onload = function () {
             if (this.status === 200) {
+                $modal.modal('hide');
+                $table.bootstrapTable('refresh');
                 var blob = this.response;
                 var name = xhr.getResponseHeader('Content-disposition');
                 var filename = name.substring(21, name.length);
@@ -53,45 +54,7 @@
                 a.click();
             }
         };
-        // 发送ajax请求
         xhr.send(JSON.stringify($("#saveForm").serializeObject()))
     }
 
-    function getCode(url) {
-        console.log(JSON.stringify($("#saveForm").serializeObject()));
-        $.ajax({
-            type: "post",
-            url: url,
-            data: JSON.stringify($("#saveForm").serializeObject()),
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            async: false,
-            success: function () {
-                $modal.modal('hide');
-                $table.bootstrapTable('refresh');
-            },
-            error: function (XMLHttpRequest) {
-                var results = JSON.parse(XMLHttpRequest.responseText).params;
-                if (results instanceof Array) {
-                    $.each(results, function (index, value) {
-                        $.confirm({
-                            theme: 'dark',
-                            animation: 'rotateX',
-                            closeAnimation: 'rotateX',
-                            title: false,
-                            content: value,
-                            buttons: {
-                                confirm: {
-                                    text: '确认',
-                                    btnClass: 'waves-effect waves-button waves-light'
-                                }
-                            }
-                        });
-                    });
-                }
-            }
-        })
-        ;
-
-    }
 </script>

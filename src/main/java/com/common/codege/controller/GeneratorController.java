@@ -2,9 +2,12 @@ package com.common.codege.controller;
 
 import cn.hutool.core.io.IoUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.common.codege.entity.GenDatasourceConf;
 import com.common.codege.entity.GeneratorConf;
+import com.common.codege.service.GenDatasourceConfService;
 import com.common.codege.service.GeneratorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,6 +35,7 @@ import java.util.Map;
 @Api(value = "generator", tags = "生成代码")
 public class GeneratorController {
     private final GeneratorService generatorService;
+    private final GenDatasourceConfService genDatasourceConfService;
 
     @ApiOperation(value = "分页查询", notes = "分页查询")
     @GetMapping("/index")
@@ -48,7 +52,7 @@ public class GeneratorController {
     @ApiOperation(value = "分页查询", notes = "分页查询")
     @GetMapping("/page")
     @ResponseBody
-    public ResponseEntity getGenDatasourceConfPage(Page page, String tableName, @RequestParam(defaultValue = "test") String dsName) {
+    public ResponseEntity getGenDatasourceConfPage(Page page, String tableName, @RequestParam(defaultValue = "master") String dsName) {
         IPage<List<Map<String, Object>>> page1 = generatorService.page(page, tableName, dsName);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("total", page1.getTotal());

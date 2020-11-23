@@ -23,3 +23,9 @@
 <link rel="stylesheet" href="/assets//css/jquery-confirm.min.css"/>
 <script src="/assets/js/jquery-confirm.min.js"></script>
 
+
+<#--select样式-->
+<link rel="stylesheet" href="/assets/css/select2.min.css"/>
+<link rel="stylesheet" href="/assets/css/select2-bootstrap.min.css"/>
+<script src="/assets/js/select2.min.js"></script>
+<script src="/assets/js/zh-CN.js"></script>
