@@ -36,7 +36,7 @@ public class ${className}Controller {
      */
     @ApiOperation(value = "分页查询", notes = "分页查询")
     @GetMapping("/page" )
-    public BaseResponseWrapper getGenDatasourceConfPage(@RequestHeader(required = true, name = "token") String token,Page page, ${className} ${classVarName}) {
+    public BaseResponseWrapper page(@RequestHeader(required = true, name = "token") String token,Page page, ${className} ${classVarName}) {
        // Long userId = JWTUtil.getUserId(token);
         return BaseResponseWrapMapper.ok(${classVarName}Service.page(page, Wrappers.query(${classVarName})));
     }
@@ -49,7 +49,7 @@ public class ${className}Controller {
      */
     @ApiOperation(value = "通过id查询", notes = "通过id查询")
     @GetMapping("/{id}" )
-    public BaseResponseWrapper getById(@PathVariable("id" ) Integer id) {
+    public BaseResponseWrapper getById(@PathVariable("id" ) Long id) {
         return BaseResponseWrapMapper.ok(${classVarName}Service.getById(id));
     }
 
@@ -84,7 +84,7 @@ public class ${className}Controller {
      */
     @ApiOperation(value = "通过id删除${tableComment}", notes = "通过id删除${tableComment}")
     @DeleteMapping("/{id}" )
-    public BaseResponseWrapper removeById(@PathVariable Integer id) {
+    public BaseResponseWrapper removeById(@PathVariable Long id) {
         return BaseResponseWrapMapper.ok(${classVarName}Service.removeById(id));
     }
 
