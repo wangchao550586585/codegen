@@ -14,5 +14,22 @@
 
 
 
+<sql id="sql">
+    <#list cols as col>
+        <#if col_index != 0>
+            ,
+        </#if>
+        ${col.colName} as ${col.fieldName}
+    </#list>
+</sql>
+
+<sql id="sql2">
+    <#list cols as col>
+        <#if col_index != 0>
+            ,
+        </#if>
+        ${col.colName}
+    </#list>
+</sql>
 
 </mapper>
