@@ -26,8 +26,8 @@ public class App {
     @Bean
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setPassword(globalConfig.getUsername());
-        dataSource.setUsername(globalConfig.getPassword());
+        dataSource.setUsername(globalConfig.getUsername());
+        dataSource.setPassword(globalConfig.getPassword());
         dataSource.setDriverClassName(globalConfig.getDriverClassName());
         dataSource.setJdbcUrl(globalConfig.getJdbcUrl());
 
