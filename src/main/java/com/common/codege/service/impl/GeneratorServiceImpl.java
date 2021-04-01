@@ -97,7 +97,7 @@ public class GeneratorServiceImpl implements GeneratorService {
         } else {
             String fileName = file.getName();
             String s = fileName.split("\\.")[0];
-            String genFileName = fileName.equals("Entity.java.ftl") ? ".java" : fileName.replaceAll(".ftl", "");
+            String genFileName = fileName.equals("Entity.kt.ftl") ? ".kt" : fileName.replaceAll(".ftl", "");
 
             //构造文件路径
             String filePath = root.getPackageName().concat("." + s.toLowerCase());
