@@ -20,7 +20,15 @@ import freemarker.template.TemplateExceptionHandler;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.system.ApplicationHome;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
@@ -39,21 +47,68 @@ import java.util.zip.ZipOutputStream;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class GeneratorServiceImpl implements GeneratorService {
+public class GeneratorServiceImpl implements GeneratorService, InitializingBean {
     private final GeneratorMapper generatorMapper;
     private final GenDatasourceConfService genDatasourceConfService;
-    private static String path = GeneratorServiceImpl.class.getClass().getResource("/template").getPath();
+    private static String path;
     private static final Pattern pattern = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE);
 
     private static Properties properties = new Properties();
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private static String fileNames[] = {"Controller.kt.ftl", "Entity.kt.ftl", "Param.kt.ftl", "Service.kt.ftl"};
 
     static {
         try {
+            ApplicationHome applicationHome = new ApplicationHome(GeneratorServiceImpl.class);
+            String rootPath = applicationHome.getSource().getParentFile().toString();
+            path = rootPath + File.separator + "template";
+
+//            + File.separator + "Controller.kt.ftl";
+
             InputStream in = GeneratorServiceImpl.class.getClassLoader().getResourceAsStream("generator.properties");
             properties.load(in);
         } catch (IOException e) {
         }
     }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+//            path = GeneratorServiceImpl.class.getClass().getResource("/template").getPath();
+//            path = new ClassPathResource("template/Controller.kt.ftl").getFile().getParent();
+        for (int i = 0; i < fileNames.length; i++) {
+            String prefix = File.separator + fileNames[i];
+            File out = new File(path + prefix);
+            InputStream in = new ClassPathResource("template" + prefix).getInputStream();
+            FileUtils.copyInputStreamToFile(Objects.requireNonNull(in, "config.xml文件找不到"), out);
+        }
+
+
+//        if (!out.exists()) {
+        //获取类路径下的指定文件流
+//            try {
+//                InputStream in = this.getClass().getClassLoader().getResourceAsStream("/template/Controller.kt.ftl");
+
+//                extracted(in);
+//                logger.debug("--------------------------------------------------------" + new ClassPathResource("template/Controller.kt.ftl").getPath());
+//                logger.debug("--------------------------------------------------------"+GeneratorServiceImpl.class.getClass().getResource("/template/Controller.kt.ftl").getPath());
+//                logger.debug("--------------------------------------------------------"+GeneratorServiceImpl.class.getClass().getClassLoader().getResource("/template/Controller.kt.ftl").getPath());
+
+/*            } catch (IOException e) {
+                logger.debug("--------------------------------------------------------" + e);
+            }
+        }*/
+
+    }
+
+/*    private void extracted(InputStream fileInputStream) throws IOException {
+        byte[] bytes = new byte[1024];
+        while (fileInputStream.read(bytes) > 0) {
+            //根据用户输入的信息创建字符串
+            String str = new String(bytes).trim();
+            logger.debug(str);
+        }
+    }*/
 
 
     @Override
@@ -74,6 +129,8 @@ public class GeneratorServiceImpl implements GeneratorService {
     @SneakyThrows
     @Override
     public byte[] code(GeneratorConf generatorConf) {
+        afterPropertiesSet();
+
         //解析生成root
         TableEntity root = getRoot(generatorConf);
 
@@ -102,7 +159,6 @@ public class GeneratorServiceImpl implements GeneratorService {
             //构造文件路径
             String filePath = root.getPackageName().concat("." + s.toLowerCase());
             filePath = filePath.replace(".", File.separator).concat(File.separator + root.getClassName() + genFileName);
-            filePath = filePath.replace("serviceimpl", "service" + File.separator + "impl");
 
             //获取模板
             Template temp = cfg.getTemplate(fileName);
@@ -124,6 +180,7 @@ public class GeneratorServiceImpl implements GeneratorService {
 
     /**
      * 获取模板配置
+     *
      * @return
      * @throws IOException
      */
@@ -217,5 +274,6 @@ public class GeneratorServiceImpl implements GeneratorService {
         }
         return s;
     }
+
 
 }
