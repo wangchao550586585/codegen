@@ -32,29 +32,42 @@ class ${className}Controller {
     @Autowired
     private lateinit var ${classVarName}Service : ${className}Service
 
+
+    /**
+    * 根据id查询${tableComment}
+    * @param id id
+    * @return Result<${className}>
+    */
+    @NoAuth
+    @ApiOperation(value = "新增课程同步表222", notes = "新增课程同步表222")
+    @GetMapping("/api/v1/demo/get")
+    fun findById(@PathVariable("id") id: Long): Result<${className}> {
+        return ok(${classVarName}Service.findById(id))
+    }
+
     /**
     * 新增${tableComment}
-    * @param ${classVarName} ${tableComment}
+    * @param param
     * @return Result<Boolean>
     */
     @NoAuth
     @ApiOperation(value = "新增${tableComment}", notes = "新增${tableComment}")
     @PostMapping("/api/v1/${classVarName}/save")
     fun save(@Valid @RequestBody param: ${className}Param): Result<Boolean> {
-        logger.info("/api/v1/demo/save; param [{}]", objectMapper.writeValueAsString(param))
+        logger.info("/api/v1/${classVarName}/save; param [{}]", objectMapper.writeValueAsString(param))
         return ok(${classVarName}Service.save(param))
     }
 
     /**
     * 修改${tableComment}
-    * @param ${classVarName} ${tableComment}
+    * @param param
     * @return Result<Boolean>
     */
     @NoAuth
     @ApiOperation(value = "修改${tableComment}", notes = "修改${tableComment}")
     @PutMapping("/api/v1/${classVarName}/update")
     fun update(@Valid @RequestBody param: ${className}Param): Result<Boolean> {
-        logger.info("/api/v1/demo/save; param [{}]", objectMapper.writeValueAsString(param))
+        logger.info("/api/v1/${classVarName}/update; param [{}]", objectMapper.writeValueAsString(param))
         return ok(${classVarName}Service.update(param))
     }
 
@@ -67,7 +80,7 @@ class ${className}Controller {
     @ApiOperation(value = "通过id删除${tableComment}", notes = "通过id删除${tableComment}")
     @DeleteMapping("/api/v1/${classVarName}/{id}")
     fun del(@PathVariable("id") id: Long): Result<Boolean> {
-        logger.info("/api/v1/demo/del; param [{}]", objectMapper.writeValueAsString(id))
+        logger.info("/api/v1/${classVarName}/del; param [{}]", objectMapper.writeValueAsString(id))
         return ok(${classVarName}Service.delete(id))
     }
 

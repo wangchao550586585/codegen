@@ -20,32 +20,33 @@ class ${className}Service {
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
-    /**
-     * 同步新增直播数据
-     */
+
+    fun findById(id: Long): ${className}? {
+        return ${className}.byId(id)
+    }
+
+
     fun save(param: ${className}Param): Boolean {
-        val demo = create${className}(param)
-        Demo.db().save(demo)
-        logger.info("同步新增直播数据", objectMapper.writeValueAsString(demo))
+        val ${classVarName} = create${className}(param)
+        ${className}.db().save(${classVarName})
+        // logger.info("新增${tableComment}数据", objectMapper.writeValueAsString(param))
         return true
     }
     fun update(param: ${className}Param): Boolean? {
-        Demo.db().update(create${className}(param))
-        logger.info("同步修改直播数据", objectMapper.writeValueAsString(param))
+        ${className}.db().update(create${className}(param))
+        // logger.info("修改${tableComment}数据", objectMapper.writeValueAsString(param))-->
         return true
     }
 
-    /**
-     * 同步删除or取消数据
-     */
+
     fun delete(id: Long): Boolean {
-        Demo.deleteById(id)
-        logger.info("同步删除直播数据contentId:{}", id)
+        ${className}.deleteById(id)
+        // logger.info("删除${tableComment}数据contentId:{}", id)
         return true
     }
 
     private fun create${className}(param: ${className}Param): ${className} {
-        return ${className}().apply {
+/*      return ${className}().apply {
             this.id = param.id
             this.contentId = param.contentId
             this.contentTitle = param.contentTitle
@@ -53,6 +54,7 @@ class ${className}Service {
             this.snapId = param.snapId
             this.startTime = param.startTime
             this.endTime = param.endTime
-        }
+        }*/
+        return ${className}()
     }
 }

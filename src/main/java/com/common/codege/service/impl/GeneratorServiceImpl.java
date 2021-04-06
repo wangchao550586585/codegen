@@ -56,7 +56,7 @@ public class GeneratorServiceImpl implements GeneratorService, InitializingBean 
     private static Properties properties = new Properties();
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static String fileNames[] = {"Controller.kt.ftl", "Entity.kt.ftl", "Param.kt.ftl", "Service.kt.ftl"};
+    private static String fileNames[] = {"Controller.kt.ftl", "Entity.kt.ftl", "Param.kt.ftl", "Service.kt.ftl", "Repository.kt.ftl"};
 
     static {
         try {
@@ -64,7 +64,7 @@ public class GeneratorServiceImpl implements GeneratorService, InitializingBean 
             String rootPath = applicationHome.getSource().getParentFile().toString();
             path = rootPath + File.separator + "template";
 
-//            + File.separator + "Controller.kt.ftl";
+//            path = GeneratorServiceImpl.class.getClass().getResource("/template").getPath();
 
             InputStream in = GeneratorServiceImpl.class.getClassLoader().getResourceAsStream("generator.properties");
             properties.load(in);
@@ -74,41 +74,15 @@ public class GeneratorServiceImpl implements GeneratorService, InitializingBean 
 
     @Override
     public void afterPropertiesSet() throws Exception {
-//            path = GeneratorServiceImpl.class.getClass().getResource("/template").getPath();
-//            path = new ClassPathResource("template/Controller.kt.ftl").getFile().getParent();
         for (int i = 0; i < fileNames.length; i++) {
             String prefix = File.separator + fileNames[i];
             File out = new File(path + prefix);
             InputStream in = new ClassPathResource("template" + prefix).getInputStream();
             FileUtils.copyInputStreamToFile(Objects.requireNonNull(in, "config.xml文件找不到"), out);
         }
-
-
-//        if (!out.exists()) {
-        //获取类路径下的指定文件流
-//            try {
-//                InputStream in = this.getClass().getClassLoader().getResourceAsStream("/template/Controller.kt.ftl");
-
-//                extracted(in);
-//                logger.debug("--------------------------------------------------------" + new ClassPathResource("template/Controller.kt.ftl").getPath());
-//                logger.debug("--------------------------------------------------------"+GeneratorServiceImpl.class.getClass().getResource("/template/Controller.kt.ftl").getPath());
-//                logger.debug("--------------------------------------------------------"+GeneratorServiceImpl.class.getClass().getClassLoader().getResource("/template/Controller.kt.ftl").getPath());
-
-/*            } catch (IOException e) {
-                logger.debug("--------------------------------------------------------" + e);
-            }
-        }*/
-
     }
 
-/*    private void extracted(InputStream fileInputStream) throws IOException {
-        byte[] bytes = new byte[1024];
-        while (fileInputStream.read(bytes) > 0) {
-            //根据用户输入的信息创建字符串
-            String str = new String(bytes).trim();
-            logger.debug(str);
-        }
-    }*/
+
 
 
     @Override
